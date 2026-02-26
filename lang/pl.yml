@@ -1,0 +1,10 @@
+pl:
+  MaintenanceMode:
+    SETTINGSHEADING: 'Tryb offline/konserwacji'
+    SETTINGSACTIVATE: 'Aktywuj tryb offline/konserwacji'
+    TITLE: 'Trwają planowane prace konserwacyjne'
+    URLSEGMENT: 'offline'
+    MENUTITLE: 'Strona pomocnicza'
+    CONTENT: '<h1>Wrócimy wkrótce!</h1><p>Przepraszamy za utrudnienia, ale nasza strona jest obecnie niedostępna z powodu planowanych prac konserwacyjnych.</p>'
+    RENDERINGTEMPLATE: 'Szablon do renderowania'
+    DEFAULTTEMPLATE: '(Użyj domyślnego szablonu)'

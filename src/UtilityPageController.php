@@ -1,7 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace dljoseph\MaintenanceMode;
 
+use PageController;
+use SilverStripe\Control\HTTPResponse;
+use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\Control\Director;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
@@ -13,19 +18,16 @@ use SilverStripe\Security\PermissionProvider;
  *
  * @author Darren-Lee Joseph <darrenleejoseph@gmail.com>
  */
-class UtilityPageController extends \PageController implements PermissionProvider
+class UtilityPageController extends PageController implements PermissionProvider
 {
 
-    private static $url_handlers = [
+    private static array $url_handlers = [
         '*' => 'index'
     ];
 
-    private static $allowed_actions = [];
+    private static array $allowed_actions = [];
 
-    /**
-     * @return mixed
-     */
-    public function index()
+    public function index(): HTTPResponse|DBHTMLText
     {
         $config = $this->SiteConfig();
 

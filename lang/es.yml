@@ -1,0 +1,10 @@
+es:
+  MaintenanceMode:
+    SETTINGSHEADING: 'Modo sin conexión/mantenimiento'
+    SETTINGSACTIVATE: 'Activar modo sin conexión/mantenimiento'
+    TITLE: 'Mantenimiento programado en curso'
+    URLSEGMENT: 'offline'
+    MENUTITLE: 'Página de utilidad'
+    CONTENT: '<h1>¡Volvemos pronto!</h1><p>Disculpe las molestias, pero nuestro sitio está actualmente fuera de servicio por mantenimiento programado.</p>'
+    RENDERINGTEMPLATE: 'Plantilla con la que renderizar'
+    DEFAULTTEMPLATE: '(Usar plantilla predeterminada)'

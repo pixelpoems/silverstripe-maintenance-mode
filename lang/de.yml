@@ -1,0 +1,10 @@
+de:
+  MaintenanceMode:
+    SETTINGSHEADING: 'Offline/Wartungsmodus'
+    SETTINGSACTIVATE: 'Offline/Wartungsmodus aktivieren'
+    TITLE: 'Geplante Wartungsarbeiten'
+    URLSEGMENT: 'offline'
+    MENUTITLE: 'Hilfsseite'
+    CONTENT: '<h1>Wir sind gleich zurück!</h1><p>Entschuldigung für die Unannehmlichkeiten, unsere Website ist derzeit für geplante Wartungsarbeiten nicht verfügbar.</p>'
+    RENDERINGTEMPLATE: 'Zu verwendende Vorlage'
+    DEFAULTTEMPLATE: '(Standardvorlage verwenden)'

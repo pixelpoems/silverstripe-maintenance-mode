@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace dljoseph\MaintenanceMode;
 
 use SilverStripe\Core\Config\Config;
@@ -7,7 +9,9 @@ use SilverStripe\ErrorPage\ErrorPage;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\ORM\DB;
 use SilverStripe\Security\Member;
-use SilverStripe\Versioned\Versioned;
+use TractorCow\Fluent\Model\Locale;
+use TractorCow\Fluent\State\FluentState;
+
 
 /**
  * Utility Page which can be used as a Down for Maintenance,
@@ -20,21 +24,21 @@ use SilverStripe\Versioned\Versioned;
 class UtilityPage extends ErrorPage
 {
 
-    private static $singular_name = 'Utility Page';
+    private static string $singular_name = 'Utility Page';
 
-    private static $plural_name = 'Utility Pages';
+    private static string $plural_name = 'Utility Pages';
 
-    private static $description = 'Use this to create a Down for Maintenance, Under Construction or Coming Soon Page';
+    private static string $class_description = 'Use this to create a Down for Maintenance, Under Construction or Coming Soon Page';
 
-    private static $icon_class = 'font-icon-p-error';
+    private static string $cms_icon_class = 'font-icon-p-error';
 
-    private static $table_name = 'UtilityPage';
+    private static string $table_name = 'UtilityPage';
 
-    private static $db = [
+    private static array $db = [
         'RenderingTemplate' => 'Varchar(64)'
     ];
 
-    private static $defaults = [
+    private static array $defaults = [
         'ErrorCode' => '503'
     ];
 
@@ -54,7 +58,7 @@ class UtilityPage extends ErrorPage
      * instance of ErrorPage with a 503 error code. If there is not,
      * one is created when the DB is built.
      */
-    public function requireDefaultRecords()
+    public function requireDefaultRecords(): void
     {
         parent::requireDefaultRecords();
 
@@ -70,7 +74,7 @@ class UtilityPage extends ErrorPage
 
         $code = self::$defaults['ErrorCode'];
 
-        $page = UtilityPage::get()->filter('ErrorCode', $code)->first();
+        $page = UtilityPage::get()->filter(['ErrorCode' => $code])->first();
         $pageExists = !empty($page);
         if (!$pageExists) {
 
@@ -93,6 +97,11 @@ class UtilityPage extends ErrorPage
             ]);
             $page->write();
             $page->copyVersionToStage(Versioned::DRAFT, Versioned::LIVE);
+        }
+
+        // Check if page is published
+        if(!$page->isPublished()) {
+            $page->publishRecursive();
         }
 
         // Ensure a static error page is created from latest Utility Page content
@@ -152,9 +161,8 @@ class UtilityPage extends ErrorPage
 
     /**
      * This function returns an array of top-level theme templates
-     * @return array
      */
-    public static function get_top_level_templates()
+    public static function get_top_level_templates(): array
     {
 
         $ss_templates_array = [];
@@ -169,7 +177,7 @@ class UtilityPage extends ErrorPage
         foreach ($search_dir_array as $directory) {
 
             //Get all the SS templates in the directory
-            foreach (glob("{$directory}/*.ss") as $template_path) {
+            foreach (glob($directory . '/*.ss') as $template_path) {
 
                 //get the template name from the path excluding the ".ss" extension
                 $template = basename($template_path, '.ss');

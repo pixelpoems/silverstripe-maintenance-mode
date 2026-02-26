@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Runs before the init function of every Page_Controller
  * to redirect regular non-admin users to the Utility
@@ -10,12 +12,12 @@
  * @author Darren-Lee Joseph <darrenleejoseph@gmail.com>
  * @author Patrick Nelson <pat@catchyour.com>
  */
-
 namespace dljoseph\MaintenanceMode;
 
 use SilverStripe\CMS\Controllers\ModelAsController;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
+use SilverStripe\Control\HTTPResponse_Exception;
 use SilverStripe\Core\Extension;
 use SilverStripe\Security\Permission;
 use SilverStripe\SiteConfig\SiteConfig;
@@ -25,15 +27,10 @@ class ContentControllerExtension extends Extension
 
     /**
      * Allowed IP addresses
-     *
-     * @var array
      */
-    private static $allowed_ips = [];
+    private static array $allowed_ips = [];
 
-    /**
-     * @return HTTPResponse
-     */
-    public function onBeforeInit()
+    public function onBeforeInit(): void
     {
         $config = SiteConfig::current_site_config();
 
@@ -49,13 +46,13 @@ class ContentControllerExtension extends Extension
         }
 
         // Are we already on the UtilityPage? If so, skip processing.
-        if ($this->owner instanceof UtilityPageController) {
+        if ($this->getOwner() instanceof UtilityPageController) {
             return;
         }
 
 
         //Is visitor trying to hit the admin URL?  Give them a chance to log in.
-        if (strstr("/Security/login", $this->owner->RelativeLink())) {
+        if (strstr($this->getOwner()->RelativeLink(), "Security")) {
             return;
         }
 
@@ -68,6 +65,7 @@ class ContentControllerExtension extends Extension
         if (!$utilityPage) {
             return;
         }
+
         // We need a utility page before we can do anything.
 
         // Are we configured to prevent redirection to the UtilityPage URL?
@@ -78,27 +76,23 @@ class ContentControllerExtension extends Extension
 
             $controller = ModelAsController::controller_for($utilityPage);
             $response = $controller->handleRequest(new HTTPRequest('GET', ''));
-            $response->output();
 
-            die();
+            throw new HTTPResponse_Exception($response);
         }
 
         // Default: Skip any further processing and immediately respond with a redirect to the UtilityPage.
-        $response = new HTTPResponse();
+        $response = HTTPResponse::create();
         $response->redirect($utilityPage->AbsoluteLink(), 302);
-        $response->output();
 
-        die();
+        throw new HTTPResponse_Exception($response);
     }
 
     /**
      * Check if the visitors IP is in the array of allowed IP's
-     *
-     * @return boolean
      */
-    public function hasAllowedIP()
+    public function hasAllowedIP(): bool
     {
-        return in_array($this->getClientIP(), $this->owner->config()->allowed_ips);
+        return in_array($this->getClientIP(), $this->getOwner()->config()->allowed_ips);
     }
 
     /**
@@ -108,6 +102,6 @@ class ContentControllerExtension extends Extension
      */
     public function getClientIP()
     {
-        return $this->owner->getRequest()->getIP();
+        return $this->getOwner()->getRequest()->getIP();
     }
 }

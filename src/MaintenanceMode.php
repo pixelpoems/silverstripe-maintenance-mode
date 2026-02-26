@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Ability to easily toggle maintenance mode via CLI. To run this command:
  *
- * 		sake dev/tasks/MaintenanceMode [on|off]
+ * 		sake dev/tasks/MaintenanceMode --mode=on|off
  *
  *
  * @package maintenancemode
@@ -12,73 +14,63 @@
  *
  * @since 2015-10-08
  */
-
 namespace dljoseph\MaintenanceMode;
 
-use SilverStripe\Control\Director;
+use Exception;
 use SilverStripe\Dev\BuildTask;
+use SilverStripe\PolyExecution\PolyOutput;
 use SilverStripe\SiteConfig\SiteConfig;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 
 class MaintenanceMode extends BuildTask
 {
-    protected $title = 'Maintance Mode Task';
+    protected string $title = 'Maintance Mode Task';
 
-    protected $description = 'Ability to easily toggle maintenance mode via CLI.';
+    protected static string $description = 'Ability to easily toggle maintenance mode via CLI.';
 
     protected $enabled = true;
 
-    private static $segment = 'MaintenanceMode';
+    private static string $segment = 'MaintenanceMode';
 
-    /**
-     * @param \SilverStripe\Control\HTTPRequest $request
-     */
-    public function run($request)
+    public function getOptions(): array
     {
-        // Only allow execution from the command line (for simplicity).
-        if (!Director::is_cli()) {
-            echo '<p>Sorry, but this can only be run from the command line.</p>';
-            return;
-        }
+        return [
+            new InputOption('mode', null, InputOption::VALUE_REQUIRED, "Set maintenance mode 'on' or 'off'"),
+        ];
+    }
 
+    protected function execute(InputInterface $input, PolyOutput $output): int
+    {
         try {
-            // Get and validate desired maintenance mode setting.
-            $get = $request->getVars();
-            if (empty($get['args'])) {
-                throw new \Exception("Please provide an argument (e.g. 'on' or 'off').", 1);
+            $arg = $input->getOption('mode');
+            if (empty($arg) || !in_array(strtolower($arg), ['on', 'off'])) {
+                throw new Exception("Please provide a valid --mode argument ('on' or 'off').", 1);
             }
 
-            $arg = strtolower(current($get['args']));
-            if ($arg != 'on' && $arg != 'off') {
-                throw new \Exception("Invalid argument: '$arg' (expected 'on' or 'off')", 2);
-            }
+            $arg = strtolower($arg);
 
             // Get and write site configuration now.
             $config = SiteConfig::current_site_config();
-            $previous = (!empty($config->MaintenanceMode) ? 'on' : 'off');
-            $config->MaintenanceMode = ($arg == 'on');
+            $previous = (empty($config->MaintenanceMode) ? 'off' : 'on');
+            $config->MaintenanceMode = ($arg === 'on');
             $config->write();
 
             // Output status and exit.
-            if ($arg != $previous) {
-                $this->output("Maintenance mode is now '$arg'.");
+            if ($arg !== $previous) {
+                $output->writeln(sprintf("Maintenance mode is now '%s'.", $arg));
             } else {
-                $this->output("NOTE: Maintenance mode was already '$arg' (nothing has changed).");
+                $output->writeln(sprintf("NOTE: Maintenance mode was already '%s' (nothing has changed).", $arg));
             }
-        } catch (\Exception $e) {
-            $this->output('ERROR: ' . $e->getMessage());
-            if ($e->getCode() <= 2) {
-                $this->output('Usage: sake dev/tasks/MaintenanceMode [on|off]');
+        } catch (Exception $exception) {
+            $output->writeln('ERROR: ' . $exception->getMessage());
+            if ($exception->getCode() <= 2) {
+                $output->writeln('Usage: sake dev/tasks/MaintenanceMode --mode=[on|off]');
             }
+            return Command::FAILURE;
         }
-    }
 
-    /**
-     * Output helper.
-     *
-     * @param $text
-     */
-    protected function output($text)
-    {
-        echo "$text\n";
+        return Command::SUCCESS;
     }
 }

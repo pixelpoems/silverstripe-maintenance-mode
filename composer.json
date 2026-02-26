@@ -31,8 +31,8 @@
         "issues": "http://github.com/dljoseph/silverstripe-maintenance-mode/issues"
     },
     "require": {
-        "silverstripe/vendor-plugin": "^2",
-        "silverstripe/cms": "^5"
+        "silverstripe/vendor-plugin": "^3",
+        "silverstripe/cms": "^6"
     },
     "autoload": {
         "psr-4": {

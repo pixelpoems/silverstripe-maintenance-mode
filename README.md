@@ -61,10 +61,9 @@ easily by simply running the `MaintenanceMode` task. For example:
 
 ```bash
 # Via Sake:
-sake dev/tasks/MaintenanceMode on
-
-# Via the CLI script directly:
-php framework/cli-script.php dev/tasks/MaintenanceMode on
+vendor/bin/sake tasks:dljoseph-MaintenanceMode-MaintenanceMode --mode=on
+# or
+vendor/bin/sake tasks:dljoseph-MaintenanceMode-MaintenanceMode --mode=off
 ```
 
 ### Allowing specific IP addresses
